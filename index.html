@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Powerlifting Speiseplan</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0a; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const C = {
+      bg: "#0a0a0a", card: "#141414", accent: "#e03030", accentLow: "#3a0a0a",
+      text: "#f0f0f0", muted: "#666", border: "#252525",
+      green: "#2ecc71", greenLow: "#0d2218", yellow: "#f1c40f", yellowLow: "#2a2200", blue: "#4fc3f7",
+    };
+
+    const days = [
+      {
+        id: "do", label: "DO", sublabel: "Donnerstag", tag: "Carb-Aufbau + Gym", tagColor: "#f1c40f",
+        note: "Erster Carb-Loading Tag. Pre-Gym Snack 14:45 nicht vergessen! 3–4L Wasser trinken.",
+        meals: [
+          { time: "08:00", name: "Frühstück", emoji: "🌅", items: [
+            { name: "Haferflocken", g: 80, kcal: 296, p: 10, k: 48, f: 6 },
+            { name: "Griechischer Joghurt (10%)", g: 200, kcal: 190, p: 18, k: 6, f: 10 },
+            { name: "Banane", g: 120, kcal: 107, p: 1, k: 25, f: 0 },
+            { name: "Honig", g: 15, kcal: 51, p: 0, k: 13, f: 0 },
+            { name: "Proteinshake (Schoko, mit Wasser)", g: 30, kcal: 120, p: 24, k: 4, f: 2 },
+          ]},
+          { time: "12:30", name: "Mittagessen", emoji: "🍽", items: [
+            { name: "Süßkartoffel (roh gewogen)", g: 300, kcal: 258, p: 5, k: 58, f: 0 },
+            { name: "Tofu (Natur)", g: 200, kcal: 196, p: 20, k: 4, f: 12 },
+            { name: "Eier (2 Stück, Rührei)", g: 120, kcal: 171, p: 15, k: 1, f: 12 },
+            { name: "Paprika", g: 150, kcal: 46, p: 1, k: 9, f: 0 },
+            { name: "Sojasoße", g: 15, kcal: 9, p: 1, k: 1, f: 0 },
+          ]},
+          { time: "14:45", name: "Pre-Gym Snack", emoji: "⚡", note: "30 Min vor Abfahrt – schnelle Carbs für das Training", items: [
+            { name: "Reiswaffeln", g: 40, kcal: 152, p: 3, k: 33, f: 1 },
+            { name: "Banane", g: 100, kcal: 89, p: 1, k: 21, f: 0 },
+            { name: "Honig", g: 10, kcal: 34, p: 0, k: 9, f: 0 },
+          ]},
+          { time: "18:00", name: "Post-Workout Abendessen", emoji: "💪", note: "Direkt nach dem Gym – Protein + Carbs für Regeneration", items: [
+            { name: "Nudeln (trocken gewogen)", g: 120, kcal: 427, p: 16, k: 86, f: 2 },
+            { name: "Tomatensoße", g: 150, kcal: 75, p: 2, k: 14, f: 2 },
+            { name: "Veg Nuggets", g: 150, kcal: 285, p: 18, k: 24, f: 11 },
+          ]},
+          { time: "20:30", name: "Abendsnack", emoji: "🌙", items: [
+            { name: "Griechischer Joghurt (10%)", g: 150, kcal: 143, p: 14, k: 5, f: 8 },
+            { name: "Honig", g: 10, kcal: 34, p: 0, k: 9, f: 0 },
+            { name: "Zartbitter Schokolade", g: 20, kcal: 108, p: 1, k: 11, f: 7 },
+          ]},
+        ],
+      },
+      {
+        id: "fr", label: "FR", sublabel: "Freitag", tag: "Carb-Peak + Gym", tagColor: "#e03030",
+        note: "Letztes Training. Ab 14:45 Fast Carbs. Abends wenig Fett & kein Sojasoße/Käse! Früh schlafen.",
+        meals: [
+          { time: "08:00", name: "Frühstück", emoji: "🌅", items: [
+            { name: "Haferflocken", g: 80, kcal: 296, p: 10, k: 48, f: 6 },
+            { name: "Griechischer Joghurt (10%)", g: 200, kcal: 190, p: 18, k: 6, f: 10 },
+            { name: "Banane", g: 120, kcal: 107, p: 1, k: 25, f: 0 },
+            { name: "Honig", g: 20, kcal: 68, p: 0, k: 17, f: 0 },
+            { name: "Proteinshake (Schoko, mit Wasser)", g: 30, kcal: 120, p: 24, k: 4, f: 2 },
+          ]},
+          { time: "12:30", name: "Mittagessen", emoji: "🍽", items: [
+            { name: "Reis (trocken gewogen)", g: 150, kcal: 537, p: 11, k: 119, f: 1 },
+            { name: "Tofu (Natur)", g: 200, kcal: 196, p: 20, k: 4, f: 12 },
+            { name: "Zucchini", g: 150, kcal: 26, p: 2, k: 4, f: 0 },
+            { name: "Sojasoße", g: 15, kcal: 9, p: 1, k: 1, f: 0 },
+          ]},
+          { time: "14:45", name: "Pre-Gym + Fast Carbs Start", emoji: "⚡", note: "Ab jetzt Fast Carbs – Glycogen-Turbo für morgen", items: [
+            { name: "Katjes Fruchtgummi (Veggie)", g: 50, kcal: 165, p: 3, k: 38, f: 0 },
+            { name: "Banane", g: 100, kcal: 89, p: 1, k: 21, f: 0 },
+          ]},
+          { time: "18:00", name: "Post-Workout Abendessen", emoji: "💪", note: "Kein Käse, kein Sojasoße heute – wenig Natrium vor Wettkampf!", items: [
+            { name: "Reis (trocken gewogen)", g: 150, kcal: 537, p: 11, k: 119, f: 1 },
+            { name: "Veg Gyros", g: 120, kcal: 180, p: 17, k: 10, f: 8 },
+            { name: "Zucchini", g: 100, kcal: 17, p: 1, k: 3, f: 0 },
+          ]},
+          { time: "20:30", name: "Letzter Snack", emoji: "🌙", note: "Letzte Carbs vor dem Schlafen – dann früh ins Bett!", items: [
+            { name: "Reiswaffeln", g: 40, kcal: 152, p: 3, k: 33, f: 1 },
+            { name: "Honig", g: 15, kcal: 51, p: 0, k: 13, f: 0 },
+            { name: "Griechischer Joghurt (10%)", g: 150, kcal: 143, p: 14, k: 5, f: 8 },
+          ]},
+        ],
+      },
+      {
+        id: "sa", label: "SA", sublabel: "Samstag", tag: "Wettkampf 12:00 🏋️", tagColor: "#e03030",
+        note: "Wettkampfstart 12:00. Kein Junk nach dem Wettkampf – du willst Dienstag definiert aussehen. Viel Wasser!",
+        meals: [
+          { time: "08:15", name: "Frühstück (3h vorher)", emoji: "🌅", note: "Leicht, verträglich, viele Carbs. Nichts Neues heute!", items: [
+            { name: "Haferflocken", g: 80, kcal: 296, p: 10, k: 48, f: 6 },
+            { name: "Griechischer Joghurt (10%)", g: 150, kcal: 143, p: 14, k: 5, f: 8 },
+            { name: "Banane", g: 120, kcal: 107, p: 1, k: 25, f: 0 },
+            { name: "Honig", g: 20, kcal: 68, p: 0, k: 17, f: 0 },
+            { name: "Proteinshake (Schoko, mit Wasser)", g: 30, kcal: 120, p: 24, k: 4, f: 2 },
+          ]},
+          { time: "11:00", name: "Pre-Workout (1h vorher)", emoji: "⚡", note: "Nur Fast Carbs – kein Fett, kein Protein mehr jetzt", items: [
+            { name: "Katjes Fruchtgummi (Veggie)", g: 40, kcal: 132, p: 2, k: 30, f: 0 },
+            { name: "Banane", g: 100, kcal: 89, p: 1, k: 21, f: 0 },
+          ]},
+          { time: "12:00 – Ende", name: "Zwischen den Versuchen", emoji: "🏋️", note: "Klein halten – Magen ruhig lassen. Nach jedem Block nachladen.", items: [
+            { name: "Katjes Fruchtgummi (Veggie)", g: 30, kcal: 99, p: 2, k: 23, f: 0 },
+            { name: "Reiswaffeln", g: 40, kcal: 152, p: 3, k: 33, f: 1 },
+            { name: "Banane", g: 100, kcal: 89, p: 1, k: 21, f: 0 },
+          ]},
+          { time: "Nach Wettkampf", name: "Abendessen (sauber)", emoji: "🍽", note: "Kein Junk! Glycogen auffüllen aber sauber bleiben für Dienstag.", items: [
+            { name: "Reis (trocken gewogen)", g: 150, kcal: 537, p: 11, k: 119, f: 1 },
+            { name: "Veg Gyros (Rest)", g: 100, kcal: 150, p: 14, k: 8, f: 7 },
+            { name: "Paprika", g: 150, kcal: 46, p: 1, k: 9, f: 0 },
+            { name: "Griechischer Joghurt (10%)", g: 150, kcal: 143, p: 14, k: 5, f: 8 },
+            { name: "Honig", g: 10, kcal: 34, p: 0, k: 9, f: 0 },
+          ]},
+        ],
+      },
+      {
+        id: "so", label: "SO", sublabel: "Sonntag", tag: "Rest Day – Regeneration", tagColor: "#2ecc71",
+        note: "Zurück zur Diät. Kein Sojasoße, kein Käse – weniger Natrium = kein Wassereinlagern = Dienstag definierter.",
+        meals: [
+          { time: "09:00", name: "Frühstück", emoji: "🌅", items: [
+            { name: "Griechischer Joghurt (10%)", g: 250, kcal: 238, p: 23, k: 8, f: 13 },
+            { name: "Proteinshake (Schoko, mit Wasser)", g: 30, kcal: 120, p: 24, k: 4, f: 2 },
+            { name: "Beeren", g: 150, kcal: 75, p: 1, k: 15, f: 1 },
+            { name: "Honig", g: 10, kcal: 34, p: 0, k: 9, f: 0 },
+          ]},
+          { time: "13:00", name: "Mittagessen", emoji: "🍽", items: [
+            { name: "Eier (3 Stück, Rührei/Omelett)", g: 180, kcal: 257, p: 22, k: 2, f: 18 },
+            { name: "Paprika", g: 200, kcal: 62, p: 2, k: 12, f: 0 },
+            { name: "Haferflocken", g: 50, kcal: 185, p: 6, k: 30, f: 3 },
+          ]},
+          { time: "16:00", name: "Snack", emoji: "🍿", items: [
+            { name: "Proteinchips (DM, z.B. Layenberger)", g: 40, kcal: 160, p: 18, k: 10, f: 5 },
+          ]},
+          { time: "19:00", name: "Abendessen", emoji: "🍽", note: "Zucchini mit rein – Reste verbrauchen vor Abfahrt", items: [
+            { name: "Veg Nuggets (Rest)", g: 150, kcal: 285, p: 18, k: 24, f: 11 },
+            { name: "Süßkartoffel (roh gewogen)", g: 200, kcal: 172, p: 3, k: 38, f: 0 },
+            { name: "Zucchini (Rest)", g: 100, kcal: 17, p: 1, k: 3, f: 0 },
+          ]},
+          { time: "21:00", name: "Abendsnack", emoji: "🌙", items: [
+            { name: "Griechischer Joghurt (Rest ~150g)", g: 150, kcal: 143, p: 14, k: 5, f: 8 },
+            { name: "Zartbitter Schokolade", g: 20, kcal: 108, p: 1, k: 11, f: 7 },
+          ]},
+        ],
+      },
+      {
+        id: "mo", label: "MO", sublabel: "Montag", tag: "Busfahrt 24h 🚌", tagColor: "#666",
+        note: "Kaum Bewegung → bewusst wenig essen. Kein Sojasoße, kein Käse. Joghurt + Banane heute früh aufbrauchen!",
+        meals: [
+          { time: "Vor Abfahrt", name: "Frühstück", emoji: "🌅", note: "Joghurt + Banane aufbrauchen – nichts wird schlecht", items: [
+            { name: "Griechischer Joghurt (letzter Rest)", g: 150, kcal: 143, p: 14, k: 5, f: 8 },
+            { name: "Haferflocken (trocken)", g: 60, kcal: 222, p: 8, k: 36, f: 4 },
+            { name: "Honig", g: 15, kcal: 51, p: 0, k: 13, f: 0 },
+            { name: "Banane (letzte)", g: 120, kcal: 107, p: 1, k: 25, f: 0 },
+          ]},
+          { time: "Unterwegs vormittags", name: "Bus-Snack 1", emoji: "🎒", items: [
+            { name: "Proteinchips (DM)", g: 40, kcal: 160, p: 18, k: 10, f: 5 },
+            { name: "Reiswaffeln (aus Rucksack)", g: 30, kcal: 114, p: 2, k: 25, f: 1 },
+          ]},
+          { time: "Raststätte", name: "McEs – Warme Mahlzeit", emoji: "🍔", note: "Veggie Burger + Pommes oder Veggie Wrap. Kein Alkohol!", items: [
+            { name: "Veggie Burger + Pommes (Schätzung)", g: 400, kcal: 750, p: 22, k: 90, f: 30 },
+          ]},
+          { time: "Unterwegs nachmittags", name: "Bus-Snack 2", emoji: "🎒", items: [
+            { name: "Proteinriegel (Fulfil/Barebells)", g: 55, kcal: 200, p: 20, k: 20, f: 8 },
+            { name: "Zartbitter Schokolade (Rest)", g: 20, kcal: 108, p: 1, k: 11, f: 7 },
+          ]},
+          { time: "Abends / vor Schlafen", name: "Letzter Snack", emoji: "🌙", note: "Protein vor dem Schlafen – Muskeln regenerieren auch im Bus", items: [
+            { name: "Proteinriegel (Fulfil/Barebells)", g: 55, kcal: 200, p: 20, k: 20, f: 8 },
+            { name: "Reiswaffeln (Rest)", g: 20, kcal: 76, p: 1, k: 17, f: 0 },
+          ]},
+        ],
+      },
+    ];
+
+    const groceries = {
+      zuhause: [
+        { name: "Veg Gyros", note: "✅ vorhanden" },
+        { name: "Veg Nuggets", note: "✅ vorhanden" },
+        { name: "Proteinpulver (Schoko)", note: "✅ vorhanden" },
+      ],
+      edeka: [
+        { cat: "🧊 Kühlschrank", items: [
+          { name: "Griechischer Joghurt (10%)", amount: "2× 500g" },
+          { name: "Tofu (Natur)", amount: "400g" },
+          { name: "Eier", amount: "6er Pack" },
+          { name: "Beeren (frisch oder TK)", amount: "150g" },
+        ]},
+        { cat: "🌾 Trockenware", items: [
+          { name: "Haferflocken", amount: "500g" },
+          { name: "Nudeln", amount: "500g" },
+          { name: "Reis", amount: "1 kg" },
+          { name: "Tomatensoße", amount: "1 Glas" },
+          { name: "Honig", amount: "250g Glas" },
+          { name: "Sojasoße", amount: "1 kl. Flasche" },
+        ]},
+        { cat: "🥦 Frisch", items: [
+          { name: "Bananen", amount: "8 Stück" },
+          { name: "Süßkartoffeln", amount: "2 Stück (~500g)" },
+          { name: "Paprika", amount: "3 Stück" },
+          { name: "Zucchini", amount: "2 Stück" },
+        ]},
+        { cat: "🍬 Snacks & Fast Carbs", items: [
+          { name: "Katjes Fruchtgummi (Veggie)", amount: "2 Packungen", note: "Nur Fr 14:45 + Sa 11:00!" },
+          { name: "Reiswaffeln", amount: "1 Packung", note: "Reste kommen in den Bus" },
+          { name: "Zartbitter Schokolade", amount: "1 Tafel", note: "Rest kommt in den Bus" },
+        ]},
+      ],
+      dm: [
+        { cat: "💊 Protein & Busfahrt", items: [
+          { name: "Proteinchips (Layenberger o.ä.)", amount: "2–3 Packungen", note: "So 16:00 + Mo Bus" },
+          { name: "Proteinriegel (Fulfil / Barebells)", amount: "3 Stück", note: "Inhalt checken – veg?" },
+        ]},
+      ],
+    };
+
+    function sumDay(meals) {
+      return meals.reduce((acc, m) => {
+        m.items.forEach(i => { acc.kcal += i.kcal; acc.p += i.p; acc.k += i.k; acc.f += i.f; });
+        return acc;
+      }, { kcal: 0, p: 0, k: 0, f: 0 });
+    }
+
+    function Badge({ label, value, color }) {
+      return (
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color }}>{value}</div>
+          <div style={{ fontSize: 10, color: C.muted, textTransform: "uppercase", letterSpacing: 1 }}>{label}</div>
+        </div>
+      );
+    }
+
+    function MealCard({ meal }) {
+      const [open, setOpen] = useState(false);
+      const tot = meal.items.reduce((a, i) => ({ kcal: a.kcal + i.kcal, p: a.p + i.p, k: a.k + i.k, f: a.f + i.f }), { kcal: 0, p: 0, k: 0, f: 0 });
+      return (
+        <div style={{ background: C.card, border: `1px solid ${open ? C.accent : C.border}`, borderRadius: 10, marginBottom: 8, overflow: "hidden" }}>
+          <div onClick={() => setOpen(o => !o)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", cursor: "pointer" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
+              <span style={{ fontSize: 11, color: C.muted, minWidth: 62, flexShrink: 0 }}>{meal.time}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: C.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{meal.emoji} {meal.name}</span>
+            </div>
+            <div style={{ display: "flex", gap: 10, alignItems: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: 13, color: C.accent, fontWeight: 700 }}>{tot.kcal} kcal</span>
+              <span style={{ color: C.muted, fontSize: 16, display: "inline-block", transform: open ? "rotate(90deg)" : "none" }}>›</span>
+            </div>
+          </div>
+          {open && (
+            <div style={{ padding: "0 14px 14px", borderTop: `1px solid ${C.border}` }}>
+              {meal.note && <div style={{ background: C.accentLow, border: "1px solid #5a1010", borderRadius: 6, padding: "7px 10px", margin: "10px 0", fontSize: 12, color: "#ff9090" }}>💡 {meal.note}</div>}
+              <div style={{ display: "flex", gap: 20, padding: "10px 0", marginBottom: 6, borderBottom: `1px solid ${C.border}` }}>
+                <Badge label="Kcal" value={tot.kcal} color={C.accent} />
+                <Badge label="Protein" value={`${tot.p}g`} color={C.blue} />
+                <Badge label="KH" value={`${tot.k}g`} color={C.yellow} />
+                <Badge label="Fett" value={`${tot.f}g`} color="#a5d6a7" />
+              </div>
+              <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>{["Lebensmittel","g","kcal","P","KH","F"].map((h,i) => <th key={i} style={{ textAlign: i===0?"left":"right", color: C.muted, paddingBottom: 6, fontWeight: 500, fontSize: 11 }}>{h}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {meal.items.map((item, i) => (
+                    <tr key={i} style={{ borderTop: `1px solid ${C.border}` }}>
+                      <td style={{ padding: "5px 0", color: C.text }}>{item.name}</td>
+                      <td style={{ textAlign: "right", color: C.muted }}>{item.g > 0 ? item.g : "–"}</td>
+                      <td style={{ textAlign: "right", color: C.accent, fontWeight: 600 }}>{item.kcal}</td>
+                      <td style={{ textAlign: "right", color: C.blue }}>{item.p}g</td>
+                      <td style={{ textAlign: "right", color: C.yellow }}>{item.k}g</td>
+                      <td style={{ textAlign: "right", color: "#a5d6a7" }}>{item.f}g</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function PlanTab() {
+      const [activeDay, setActiveDay] = useState("do");
+      const day = days.find(d => d.id === activeDay);
+      const tot = sumDay(day.meals);
+      return (
+        <div>
+          <div style={{ display: "flex", gap: 6, marginBottom: 14, overflowX: "auto", paddingBottom: 2 }}>
+            {days.map(d => (
+              <button key={d.id} onClick={() => setActiveDay(d.id)} style={{ background: activeDay===d.id ? C.accent : C.card, border: `1px solid ${activeDay===d.id ? C.accent : C.border}`, color: C.text, borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{d.label}</button>
+            ))}
+          </div>
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+              <div>
+                <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 2 }}>{day.sublabel}</div>
+                <span style={{ display: "inline-block", marginTop: 4, background: day.tagColor+"22", color: day.tagColor, border: `1px solid ${day.tagColor}44`, borderRadius: 6, padding: "3px 10px", fontSize: 12, fontWeight: 600 }}>{day.tag}</span>
+              </div>
+              <div style={{ display: "flex", gap: 14 }}>
+                <Badge label="Kcal" value={tot.kcal} color={C.accent} />
+                <Badge label="Protein" value={`${tot.p}g`} color={C.blue} />
+                <Badge label="KH" value={`${tot.k}g`} color={C.yellow} />
+                <Badge label="Fett" value={`${tot.f}g`} color="#a5d6a7" />
+              </div>
+            </div>
+            {day.note && <div style={{ fontSize: 12, color: C.muted, borderTop: `1px solid ${C.border}`, paddingTop: 8 }}>📋 {day.note}</div>}
+          </div>
+          {day.meals.map((m, i) => <MealCard key={i} meal={m} />)}
+        </div>
+      );
+    }
+
+    function GroceryTab() {
+      const [checked, setChecked] = useState({});
+      const toggle = k => setChecked(c => ({ ...c, [k]: !c[k] }));
+      const allItems = groceries.edeka.reduce((a,c) => a+c.items.length, 0) + groceries.dm.reduce((a,c) => a+c.items.length, 0);
+      const total = Object.values(checked).filter(Boolean).length;
+      const CheckRow = ({ item, id }) => (
+        <div onClick={() => toggle(id)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", cursor: "pointer", opacity: checked[id] ? 0.35 : 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 20, height: 20, borderRadius: 5, flexShrink: 0, border: `2px solid ${checked[id] ? C.green : C.border}`, background: checked[id] ? C.green : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {checked[id] && <span style={{ color: "#000", fontSize: 12, fontWeight: 900 }}>✓</span>}
+            </div>
+            <div>
+              <div style={{ fontSize: 13, color: C.text, textDecoration: checked[id] ? "line-through" : "none" }}>{item.name}</div>
+              {item.note && <div style={{ fontSize: 11, color: C.yellow, marginTop: 1 }}>⚠ {item.note}</div>}
+            </div>
+          </div>
+          <span style={{ fontSize: 12, color: C.muted, flexShrink: 0, marginLeft: 8 }}>{item.amount}</span>
+        </div>
+      );
+      return (
+        <div>
+          <div style={{ background: C.greenLow, border: "1px solid #1a4a30", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+            <div style={{ fontSize: 12, color: C.green, fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>✅ Zuhause vorhanden – nicht kaufen</div>
+            {groceries.zuhause.map((item, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0", fontSize: 13, color: C.text }}>
+                <span>{item.name}</span><span style={{ color: C.green, fontSize: 12 }}>{item.note}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700 }}>🛒 Edeka</div>
+            <div style={{ fontSize: 11, color: C.muted }}>{total}/{allItems} abgehakt</div>
+          </div>
+          {groceries.edeka.map((cat, ci) => (
+            <div key={ci} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>{cat.cat}</div>
+              {cat.items.map((item, ii) => <div key={ii} style={{ borderTop: ii>0 ? `1px solid ${C.border}` : "none" }}><CheckRow item={item} id={`e-${ci}-${ii}`} /></div>)}
+            </div>
+          ))}
+          <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700, marginBottom: 8 }}>💊 DM</div>
+          {groceries.dm.map((cat, ci) => (
+            <div key={ci} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: C.muted, fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>{cat.cat}</div>
+              {cat.items.map((item, ii) => <div key={ii} style={{ borderTop: ii>0 ? `1px solid ${C.border}` : "none" }}><CheckRow item={item} id={`d-${ci}-${ii}`} /></div>)}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    function BusTab() {
+      const mo = days.find(d => d.id === "mo");
+      const tot = sumDay(mo.meals);
+      return (
+        <div>
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "16px", marginBottom: 14 }}>
+            <div style={{ fontSize: 28, marginBottom: 6 }}>🚌</div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: C.text, marginBottom: 4 }}>24h Busfahrt – Montag</div>
+            <div style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>Kaum Bewegung → bewusst wenig. Kein Käse, kein Sojasoße → kein Wassereinlagern.</div>
+            <div style={{ display: "flex", gap: 20 }}>
+              <Badge label="Kcal gesamt" value={tot.kcal} color={C.accent} />
+              <Badge label="Protein" value={`${tot.p}g`} color={C.blue} />
+              <Badge label="KH" value={`${tot.k}g`} color={C.yellow} />
+              <Badge label="Fett" value={`${tot.f}g`} color="#a5d6a7" />
+            </div>
+          </div>
+          <div style={{ background: C.yellowLow, border: "1px solid #4a3a00", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+            <div style={{ fontSize: 12, color: C.yellow, fontWeight: 700, marginBottom: 4 }}>🍔 McEs – 1 Stop Raststätte</div>
+            <div style={{ fontSize: 13, color: C.text }}>Veggie Burger + Pommes oder Veggie Wrap. Kein Alkohol – du willst Dienstag definiert aussehen.</div>
+          </div>
+          {mo.meals.map((m, i) => <MealCard key={i} meal={m} />)}
+        </div>
+      );
+    }
+
+    function App() {
+      const [tab, setTab] = useState("plan");
+      const tabs = [{ id: "plan", label: "📅 Plan" }, { id: "grocery", label: "🛒 Einkaufen" }, { id: "bus", label: "🚌 Busfahrt" }];
+      return (
+        <div style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "'Inter', system-ui, sans-serif" }}>
+          <div style={{ background: "#0f0f0f", borderBottom: `1px solid ${C.border}`, padding: "14px 16px 0", position: "sticky", top: 0, zIndex: 10 }}>
+            <div style={{ maxWidth: 520, margin: "0 auto" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: C.accent, letterSpacing: -0.5 }}>POWERLIFTING</span>
+                <span style={{ fontSize: 11, color: C.muted, letterSpacing: 1 }}>DO – MO · 95kg · Vegetarisch</span>
+              </div>
+              <div style={{ display: "flex" }}>
+                {tabs.map(t => (
+                  <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, background: "none", border: "none", borderBottom: `2px solid ${tab===t.id ? C.accent : "transparent"}`, color: tab===t.id ? C.text : C.muted, padding: "8px 4px", fontSize: 13, fontWeight: tab===t.id ? 700 : 400, cursor: "pointer" }}>{t.label}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div style={{ maxWidth: 520, margin: "0 auto", padding: "16px 14px 50px" }}>
+            {tab === "plan" && <PlanTab />}
+            {tab === "grocery" && <GroceryTab />}
+            {tab === "bus" && <BusTab />}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
